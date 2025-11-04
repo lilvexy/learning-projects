@@ -1,9 +1,11 @@
 import tkinter as tk
+import os
 from datetime import datetime
 
+
 class Gui: # Klassen Gui används för att uppfylla kravet på OOP i uppgiften då jag redan hade byggt miniräknaren innan uppgiften las ut.
-    def __init__(self, master, display_widget, greeting_widget):
-        self.window = master
+    def __init__(self, master, display_widget, greeting_widget):#input till funktionen
+        self.window = master 
         self.display = display_widget
         self.greeting = greeting_widget
 
@@ -11,7 +13,6 @@ class Gui: # Klassen Gui används för att uppfylla kravet på OOP i uppgiften d
         self.display.delete(0, tk.END)
         self.display.insert(0, text)
 
-log_file = "calculator_log.txt"
 window = tk.Tk()
 window.title("Calculator")
 
@@ -25,20 +26,19 @@ display.grid(row=1, column=0, columnspan=4, padx=5, pady=5)
 # --- Skapa instans av klassen ---
 app = Gui(window, display, greeting)
 
-# Förhindra tangentbordsinput genom att binda tangent till snabb funktion 
-#display.bind("<Key>", lambda e: "break")
+# Förhindra tangentbordsinput genom att binda tangent, för att förhindra injections, Jag har valt att inte använda för att försöka logga injection attempts. 
+#display.bind("<Key>", lambda e: "break") 
 
-#fel=[]
+
 # --- Knappar ---
 buttons = [
-    ("0",5,1),("1",4,0),("2",4,1),
+    ("0",5,1),("1",4,0),("2",4,1), # arrayn tar 3 argument siffran, row, column dvs vad som visas och vart den är placerad. 
     ("3",4,2),("4",3,0),("5",3,1),
     ("6",3,2),("7",2,0),("8",2,1),
     ("9",2,2)
 ]
 symbols = [("+",5,3),("-",4,3),("*",3,3),("/",2,3)] #array av symboler med position på guit
-history = []
-suspicious=[]
+history = [] #tom array för calculate som global history.
 
 # --- Funktioner ---
 def on_button_click(value): #definerar functionen
@@ -63,9 +63,9 @@ def check_expression(expression): #kontroll av expression
         
     if susattempt:
       print("fck u")  # terminalmeddelande
-      logpath = r"C:\Users\Vexy\Miniräknare\sus_attempt_log.txt"
-      with open(logpath, "a") as file:
-        file.write(f"{datetime.now()} - Försök: {sustext}\n")    
+      logpath = os.path.join(os.path.dirname(__file__), "sus_attempt_log.txt") #vart logfilen sparas, formatet är för att de ska fungera på andra datorer och inte behöver andra mappar
+      with open(logpath, "a") as file: #öppnar logfilen som append. 
+        file.write(f"{datetime.now()} - Försök: {sustext}\n")    #adderar detta. 
 
     return expression
 
@@ -73,8 +73,8 @@ def calculate(): #funktion för att calculera
     global history #i funktionen saå tror python att du vill skapa en lokal variabel så man behöver ange global sedan variabeln för att använda i funktionen. 
     try: #försöker köra detta
         expression = display.get() #vi återanvänder expression här där de visar display innehållet
-        checked_expression = check_expression(expression) #här lagras resultatet av funktionen ovan 
-        result = eval(checked_expression) #result= eval av checked expression.(eval är de som gör de möjligt med injections därför behöver de som evalueras vara kontrollerad innehåll)
+        checked_expression = check_expression(expression) #här lagras resultatet av check_expression funktionen ovan 
+        result = eval(checked_expression) #result= eval av checked_expression.(eval är de som gör de möjligt med injections därför behöver de som evalueras vara kontrollerad innehåll)
         history.append(f"{expression}={result}")
         display.delete(0, tk.END) #tar bort innehållet på display allt
         display.insert(0, str(result)) #sätter in result i sträng 
@@ -83,7 +83,7 @@ def calculate(): #funktion för att calculera
         display.insert(0,"no")
 
 def delete():
-    current=display.get()
+
     display.delete(len(display.get())-1)  # deletes last character
 
 for (text,row,col) in buttons: 
