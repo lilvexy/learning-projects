@@ -1,0 +1,1 @@
+Scripts for system management will be posted here! How it works is explained in the code as comments. I have used them on my windows and linux environments so the entire system is explained in the blog posts.  
